@@ -1,0 +1,86 @@
+ if msg.topic == 'elzwelle/stopwatch/start':
+        try:
+            data = payload.split(' ')
+            message = '{:} | {:10.2f} | {:}'.format(data[0].strip(),
+                                                    float(data[1]),
+                                                    data[2].strip()).replace(".",",")
+            time_stamps_start.insert(0,message)
+            while( len(time_stamps_start) > KEEP_NUM_TIME_STAMPS):
+                time_stamps_start.pop()
+            time_stamps_start_dirty = True
+        except:
+            print("MQTT Decode exception: ",msg.payload)
+        
+
+    if msg.topic == 'elzwelle/stopwatch/finish':
+        try:
+            data = payload.split(' ')
+            message = '{:} | {:10.2f} | {:}'.format(data[0].strip(),
+                                                    float(data[1]),
+                                                    data[2].strip()).replace(".",",")
+            time_stamps_finish.insert(0,message)
+            while( len(time_stamps_finish) > KEEP_NUM_TIME_STAMPS):
+                time_stamps_finish.pop()
+            time_stamps_finish_dirty = True
+        except:
+            print("MQTT Decode exception: ",msg.payload)
+            
+    if msg.topic == 'elzwelle/stopwatch/start/number':       
+        try:
+            data = payload.split(' ')
+            message = '{:} | {:10.2f} | {:}'.format(data[0].strip(),
+                                                    float(data[1]),
+                                                    data[2].strip())
+            cell = wks_start.find("{:.2f}".format(float(data[1])).replace(".",","))
+            if cell != None:
+                print("ROW: ",cell.row)     
+                wks_start.update_cell(cell.row,3,data[2])
+                start_update_number(data[1], data[2])
+            else:
+                print("Stamp not found: ",payload)
+        except Exception as e:
+            print("MQTT Decode exception: ",e,payload)
+    
+    if msg.topic == 'elzwelle/stopwatch/finish/number':       
+        try:
+            data = payload.split(' ')
+            message = '{:} | {:10.2f} | {:}'.format(data[0].strip(),
+                                                    float(data[1]),
+                                                    data[2].strip())
+            cell = wks_finish.find("{:.2f}".format(float(data[1])).replace(".",","))
+            if cell != None:
+                print("ROW: ",cell.row)     
+                wks_finish.update_cell(cell.row,3,data[2])    
+                finish_update_number(data[1], data[2])
+            else:
+                print("Stamp not found: ",payload)
+        except Exception as e:
+            print("MQTT Decode exception: ",e,payload)
+    
+    if msg.topic == 'elzwelle/stopwatch/start/get':       
+        try:
+            data = payload.split(' ')
+            message = '{:} | {:10.2f} | {:}'.format(data[0].strip(),
+                                                    float(data[1]),
+                                                    data[2].strip())
+            cell = wks_start.find(data[2].strip())
+            if cell != None:
+                print("ROW: ",cell.row,"COL: ",cell.col)     
+            else:
+                print("Entry not found: ",payload)
+        except Exception as e:
+            print("MQTT Decode exception: ",e,payload)
+                    
+    if msg.topic == 'elzwelle/stopwatch/finish/get':       
+        try:
+            data = payload.split(' ')
+            message = '{:} | {:10.2f} | {:}'.format(data[0].strip(),
+                                                    float(data[1]),
+                                                    data[2].strip())
+            cell = wks_finish.find(data[2].strip())
+            if cell != None:
+                print("ROW: ",cell.row,"COL: ",cell.col)     
+            else:
+                print("Entry not found: ",payload)
+        except Exception as e:
+            print("MQTT Decode exception: ",e,payload)
